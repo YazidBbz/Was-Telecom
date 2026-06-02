@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 220" role="img" aria-labelledby="title">
+  <title id="title">Circet France</title>
+  <rect width="520" height="220" fill="#fff"/>
+  <g transform="translate(46 42)">
+    <path d="M105 29c34 3 58 17 72 40" fill="none" stroke="#ff7a00" stroke-width="7" stroke-linecap="round"/>
+    <path d="M111 10c43 5 76 25 96 59" fill="none" stroke="#ff7a00" stroke-width="6" stroke-linecap="round" opacity=".9"/>
+    <path d="M119-8c51 8 91 34 117 76" fill="none" stroke="#ff7a00" stroke-width="5" stroke-linecap="round" opacity=".85"/>
+    <text x="0" y="104" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="86" font-style="italic" font-weight="900" fill="#16151a">circet</text>
+    <text x="190" y="164" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="58" font-style="italic" font-weight="900" fill="#f47a00">France</text>
+    <text x="119" y="104" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="86" font-style="italic" font-weight="900" fill="#f47a00">i</text>
+  </g>
+</svg>

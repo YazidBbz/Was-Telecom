@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "dev": "cmd /c \"cd public && C:\\wamp64\\bin\\php\\php8.4.0\\php.exe -S localhost:8080 router.php\""
+  },
+  "devDependencies": {}
+}

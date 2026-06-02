@@ -1,0 +1,12 @@
+.env
+/vendor/
+/node_modules/
+/setup-database.bat
+/server.js
+/tmp/
+/logs/
+/.DS_Store
+/Thumbs.db
+/*.log
+/.idea/
+/.vscode/

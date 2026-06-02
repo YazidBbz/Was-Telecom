@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Technicien fibre optique en intervention</title>
+  <desc id="desc">Visuel abstrait représentant un réseau fibre optique et une intervention technique.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#061f35"/>
+      <stop offset="0.55" stop-color="#0c3557"/>
+      <stop offset="1" stop-color="#78b8f0"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" x2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#73b9f4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="760" fill="url(#bg)"/>
+  <g fill="none" stroke="url(#line)" stroke-linecap="round" opacity=".95">
+    <path d="M90 565 C270 435 365 635 565 460 S810 230 1110 320" stroke-width="9"/>
+    <path d="M120 230 C300 315 410 130 590 245 S865 480 1090 180" stroke-width="5" opacity=".52"/>
+    <path d="M170 655 C420 525 575 665 780 535 S980 420 1135 500" stroke-width="4" opacity=".42"/>
+  </g>
+  <g fill="#ffffff">
+    <circle cx="185" cy="498" r="14"/>
+    <circle cx="565" cy="460" r="18"/>
+    <circle cx="890" cy="328" r="15"/>
+    <circle cx="1038" cy="205" r="12"/>
+  </g>
+  <g transform="translate(212 238)">
+    <rect x="0" y="132" width="290" height="210" rx="18" fill="#f6fbff"/>
+    <rect x="34" y="176" width="222" height="34" rx="8" fill="#0a2f4e"/>
+    <rect x="34" y="232" width="155" height="24" rx="6" fill="#73b9f4"/>
+    <rect x="34" y="278" width="96" height="18" rx="5" fill="#d5eafa"/>
+    <path d="M118 132 176 38 236 132" fill="#b8dcf8"/>
+    <circle cx="176" cy="54" r="34" fill="#ffffff"/>
+    <path d="M158 54h36M176 36v36" stroke="#0a2f4e" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(680 420)" fill="#061f35" opacity=".88">
+    <rect x="0" y="0" width="330" height="92" rx="46"/>
+    <rect x="252" y="28" width="170" height="36" rx="18"/>
+    <circle cx="72" cy="46" r="22" fill="#73b9f4"/>
+    <circle cx="151" cy="46" r="22" fill="#73b9f4"/>
+    <circle cx="230" cy="46" r="22" fill="#73b9f4"/>
+  </g>
+</svg>
