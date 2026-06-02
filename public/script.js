@@ -108,6 +108,16 @@ document.querySelectorAll("form[data-form]").forEach((form) => {
       return;
     }
 
+    const messageField = form.querySelector('textarea[name="message"]');
+    if (messageField && messageField.value.trim().length < 10) {
+      messageField.focus();
+      if (message) {
+        message.className = "form-message is-error";
+        message.innerHTML = "<strong>Message trop court</strong><span>Merci de saisir un message d'au moins 10 caractères.</span>";
+      }
+      return;
+    }
+
     const submitButton = form.querySelector('button[type="submit"]');
     const formData = new FormData(form);
     formData.set("form_type", form.dataset.form || "contact");

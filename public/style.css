@@ -314,6 +314,13 @@ input, select, textarea {
   color: var(--ink);
 }
 textarea { min-height: 140px; resize: vertical; }
+.field-help {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
 .form-message {
   display: none;
   margin-top: 18px;

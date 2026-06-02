@@ -39,7 +39,7 @@
             <div class="field"><label for="candidature-telephone">Téléphone *</label><input id="candidature-telephone" name="telephone" type="tel" required></div>
             <div class="field full"><label for="candidature-poste">Poste recherche</label><select id="candidature-poste" name="poste"><option>Technicien fibre optique</option><option>Raccordeur fibre optique</option><option>Chef d'équipe</option><option>Conducteur de travaux</option><option>Apprenti technicien</option></select></div>
             <div class="field full"><label>CV</label><div class="fake-upload">Champ visuel uniquement : aucun upload backend n'est activé.</div></div>
-            <div class="field full"><label for="candidature-message">Message *</label><textarea id="candidature-message" name="message" required></textarea></div>
+            <div class="field full"><label for="candidature-message">Message *</label><textarea id="candidature-message" name="message" minlength="10" required></textarea><small class="field-help">Minimum 10 caractères.</small></div>
           </div>
           <button class="btn primary" type="submit">Envoyer ma candidature</button><div class="form-message" aria-live="polite"></div>
         </form>
