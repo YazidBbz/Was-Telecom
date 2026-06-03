@@ -248,7 +248,7 @@ p { margin: 0 0 16px; color: var(--muted); }
   height: 74px;
 }
 .partner-logo.spie img {
-  height: 70px;
+  height: 78px;
 }
 
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: center; }
