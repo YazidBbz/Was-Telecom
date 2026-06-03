@@ -136,24 +136,31 @@ document.querySelectorAll("form[data-form]").forEach((form) => {
       return;
     }
 
-    const photoField = form.querySelector('input[type="file"][name="photo"]');
-    const photo = photoField?.files?.[0];
-    if (photo) {
-      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-      if (!allowedTypes.includes(photo.type)) {
-        photoField.focus();
+    const fileField = form.querySelector('input[type="file"]');
+    const file = fileField?.files?.[0];
+    if (file) {
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        fileField.focus();
         if (message) {
           message.className = "form-message is-error";
-          message.innerHTML = "<strong>Photo invalide</strong><span>Merci d'ajouter une photo JPG, PNG ou WebP.</span>";
+          message.innerHTML = "<strong>Fichier invalide</strong><span>Merci d'ajouter un fichier PDF, Word, JPG, PNG ou WebP.</span>";
         }
         return;
       }
 
-      if (photo.size > 5 * 1024 * 1024) {
-        photoField.focus();
+      if (file.size > 5 * 1024 * 1024) {
+        fileField.focus();
         if (message) {
           message.className = "form-message is-error";
-          message.innerHTML = "<strong>Photo trop lourde</strong><span>La photo doit faire 5 Mo maximum.</span>";
+          message.innerHTML = "<strong>Fichier trop lourd</strong><span>La pièce jointe doit faire 5 Mo maximum.</span>";
         }
         return;
       }

@@ -30,7 +30,7 @@
     <section class="section alt">
       <div class="container split">
         <div class="feature-panel reveal"><h2>Qualités attendues</h2><ul class="check-list"><li>Sérieux et ponctualité</li><li>Respect des consignes de sécurité</li><li>Travail propre et méthodique</li><li>Esprit d'équipe</li><li>Sens du service client</li></ul></div>
-        <form id="candidature" class="card reveal" data-form="candidature">
+        <form id="candidature" class="card reveal" data-form="candidature" action="submit-form.php" method="post" enctype="multipart/form-data">
           <h2>Candidature</h2>
           <div class="form-grid">
             <div class="field"><label for="candidature-nom">Nom *</label><input id="candidature-nom" name="nom" required></div>
@@ -38,7 +38,7 @@
             <div class="field"><label for="candidature-email">Email *</label><input id="candidature-email" name="email" type="email" required></div>
             <div class="field"><label for="candidature-telephone">Téléphone *</label><input id="candidature-telephone" name="telephone" type="tel" required></div>
             <div class="field full"><label for="candidature-poste">Poste recherche</label><select id="candidature-poste" name="poste"><option>Technicien fibre optique</option><option>Raccordeur fibre optique</option><option>Chef d'équipe</option><option>Conducteur de travaux</option><option>Apprenti technicien</option></select></div>
-            <div class="field full"><label>CV</label><div class="fake-upload">Champ visuel uniquement : aucun upload backend n'est activé.</div></div>
+            <div class="field full"><label for="candidature-fichier">Pièce jointe</label><input id="candidature-fichier" name="fichier" type="file" accept=".pdf,.doc,.docx,image/jpeg,image/png,image/webp"><small class="field-help">Optionnel : PDF, Word, JPG, PNG ou WebP, 5 Mo maximum.</small></div>
             <div class="field full"><label for="candidature-message">Message *</label><textarea id="candidature-message" name="message" minlength="10" required></textarea><small class="field-help">Minimum 10 caractères.</small></div>
           </div>
           <button class="btn primary" type="submit">Envoyer ma candidature</button><div class="form-message" aria-live="polite"></div>

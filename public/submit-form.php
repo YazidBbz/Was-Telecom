@@ -125,30 +125,30 @@ function enforce_rate_limit(string $hash): void
     }
 }
 
-function optional_photo_attachment(): ?array
+function optional_attachment(string $fieldName, array $allowedMimeTypes, string $label): ?array
 {
-    if (!isset($_FILES['photo']) || !is_array($_FILES['photo'])) {
+    if (!isset($_FILES[$fieldName]) || !is_array($_FILES[$fieldName])) {
         return null;
     }
 
-    $file = $_FILES['photo'];
+    $file = $_FILES[$fieldName];
     $error = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
     if ($error === UPLOAD_ERR_NO_FILE) {
         return null;
     }
 
     if ($error !== UPLOAD_ERR_OK) {
-        fail('La photo n\'a pas pu être transmise. Merci de réessayer sans photo ou avec un autre fichier.');
+        fail($label . ' n\'a pas pu être transmis. Merci de réessayer sans fichier ou avec un autre fichier.');
     }
 
     $tmpName = (string) ($file['tmp_name'] ?? '');
     if ($tmpName === '' || !is_uploaded_file($tmpName)) {
-        fail('La photo transmise est invalide.');
+        fail($label . ' transmis est invalide.');
     }
 
     $size = (int) ($file['size'] ?? 0);
     if ($size <= 0 || $size > 5 * 1024 * 1024) {
-        fail('La photo doit faire 5 Mo maximum.');
+        fail($label . ' doit faire 5 Mo maximum.');
     }
 
     $mime = '';
@@ -160,21 +160,15 @@ function optional_photo_attachment(): ?array
         }
     }
 
-    $allowed = [
-        'image/jpeg' => 'jpg',
-        'image/png' => 'png',
-        'image/webp' => 'webp',
-    ];
-
-    if (!isset($allowed[$mime])) {
-        fail('La photo doit être au format JPG, PNG ou WebP.');
+    if (!isset($allowedMimeTypes[$mime])) {
+        fail($label . ' doit être au format autorisé.');
     }
 
-    $originalName = clean_single_line((string) ($file['name'] ?? 'photo-chantier'));
-    $safeName = preg_replace('/[^a-zA-Z0-9._-]+/', '-', $originalName) ?: 'photo-chantier';
+    $originalName = clean_single_line((string) ($file['name'] ?? 'piece-jointe'));
+    $safeName = preg_replace('/[^a-zA-Z0-9._-]+/', '-', $originalName) ?: 'piece-jointe';
     $safeName = trim($safeName, '.-');
     if ($safeName === '') {
-        $safeName = 'photo-chantier';
+        $safeName = 'piece-jointe';
     }
 
     return [
@@ -183,6 +177,27 @@ function optional_photo_attachment(): ?array
         'mime' => $mime,
         'size' => $size,
     ];
+}
+
+function optional_photo_attachment(): ?array
+{
+    return optional_attachment('photo', [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+    ], 'La photo');
+}
+
+function optional_candidate_attachment(): ?array
+{
+    return optional_attachment('fichier', [
+        'application/pdf' => 'pdf',
+        'application/msword' => 'doc',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+    ], 'La pièce jointe');
 }
 
 function send_smtp_mail(array $mailConfig, string $subject, array $bodyLines, string $replyToEmail, string $replyToName, ?array $attachment = null): bool
@@ -269,7 +284,7 @@ try {
     $availability = clean_single_line(field('disponibilite', 180));
     $jobPosition = clean_single_line(field('poste', 180));
     $message = trim(field('message', 3000));
-    $photoAttachment = $formType === 'contact' ? optional_photo_attachment() : null;
+    $attachment = $formType === 'contact' ? optional_photo_attachment() : optional_candidate_attachment();
 
     if ($lastName === '' || $firstName === '' || $email === '' || $message === '') {
         fail('Merci de remplir les champs obligatoires.');
@@ -308,7 +323,7 @@ try {
         'Urgence : ' . ($urgency !== '' ? $urgency : 'Non renseigné'),
         'Disponibilité : ' . ($availability !== '' ? $availability : 'Non renseigné'),
         'Poste recherché : ' . ($jobPosition !== '' ? $jobPosition : 'Non renseigné'),
-        'Photo jointe : ' . ($photoAttachment !== null ? $photoAttachment['name'] : 'Non'),
+        'Pièce jointe : ' . ($attachment !== null ? $attachment['name'] : 'Non'),
         '',
         'Message :',
         $message,
@@ -322,11 +337,11 @@ try {
         'Adresse / ville : ' . ($address !== '' ? $address : 'Non renseigné'),
         'Urgence : ' . ($urgency !== '' ? $urgency : 'Non renseigné'),
         'Disponibilité : ' . ($availability !== '' ? $availability : 'Non renseigné'),
-        'Photo jointe : ' . ($photoAttachment !== null ? $photoAttachment['name'] : 'Non'),
+        'Pièce jointe : ' . ($attachment !== null ? $attachment['name'] : 'Non'),
     ], static fn ($line) => $line !== null));
 
     try {
-        $emailSent = send_smtp_mail($mailConfig, $subject, $bodyLines, $email, trim($firstName . ' ' . $lastName), $photoAttachment);
+        $emailSent = send_smtp_mail($mailConfig, $subject, $bodyLines, $email, trim($firstName . ' ' . $lastName), $attachment);
         $mailError = null;
         log_form_event('SMTP OK to=' . ($mailConfig['to_email'] ?? 'missing') . ' form=' . $formType);
     } catch (MailException | RuntimeException $mailException) {

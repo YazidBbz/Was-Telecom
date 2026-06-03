@@ -361,7 +361,6 @@ textarea { min-height: 140px; resize: vertical; }
 .form-message.is-success { border-left-color: #1f9f62; background: #eefaf4; }
 .form-message.is-error { border-left-color: #b42318; background: #fff3f1; }
 .form-message.is-error strong { color: #8f1f15; }
-.fake-upload { border: 1px dashed #8bbfe7; background: var(--blue-soft); padding: 18px; border-radius: 0; color: var(--muted); }
 .map { width: 100%; min-height: 360px; border: 0; border-radius: 0; }
 .legal-content {
   max-width: 880px;
