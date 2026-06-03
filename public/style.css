@@ -257,6 +257,30 @@ p { margin: 0 0 16px; color: var(--muted); }
 .check-list li { padding-left: 34px; position: relative; color: #41566a; }
 .check-list li::before { content: ""; width: 18px; height: 18px; border-radius: 50%; background: var(--blue-light); position: absolute; left: 0; top: .2em; box-shadow: inset 0 0 0 5px var(--blue-soft); }
 .feature-panel { background: var(--blue-soft); padding: 34px; border-radius: 0; border: 1px solid #cfe6f9; border-left: 6px solid var(--blue-dark); }
+.zone-panel {
+  padding: 30px;
+  background: var(--blue-soft);
+  border-left: 6px solid var(--blue-dark);
+}
+.zone-panel strong {
+  display: block;
+  color: var(--blue-deep);
+  font-size: 1.15rem;
+  margin-bottom: 16px;
+}
+.zone-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.zone-list span {
+  padding: 8px 11px;
+  background: var(--white);
+  border: 1px solid #cfe6f9;
+  color: var(--blue-deep);
+  font-weight: 800;
+  font-size: .88rem;
+}
 
 .project-card { overflow: hidden; padding: 0; }
 .project-card img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; transition: transform .35s ease; }
@@ -295,6 +319,23 @@ p { margin: 0 0 16px; color: var(--muted); }
 .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 26px; }
 .filter-btn { border: 2px solid var(--blue-dark); background: var(--white); color: var(--blue-deep); border-radius: 0; padding: 11px 16px; cursor: pointer; font-size: .82rem; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; }
 .filter-btn.active { background: var(--blue-dark); color: var(--white); border-color: var(--blue-dark); }
+.faq-list {
+  display: grid;
+  gap: 14px;
+}
+.faq-list details {
+  padding: 0;
+}
+.faq-list summary {
+  cursor: pointer;
+  padding: 22px 26px;
+  color: var(--blue-deep);
+  font-weight: 900;
+}
+.faq-list details p {
+  margin: 0;
+  padding: 0 26px 24px;
+}
 
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .field.full { grid-column: 1 / -1; }

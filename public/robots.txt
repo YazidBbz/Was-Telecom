@@ -1,0 +1,9 @@
+﻿User-agent: *
+Allow: /
+
+Disallow: /config/
+Disallow: /vendor/
+Disallow: /tmp/
+Disallow: /logs/
+
+Sitemap: https://was-telecom.fr/sitemap.xml
