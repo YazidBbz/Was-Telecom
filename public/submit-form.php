@@ -125,7 +125,67 @@ function enforce_rate_limit(string $hash): void
     }
 }
 
-function send_smtp_mail(array $mailConfig, string $subject, array $bodyLines, string $replyToEmail, string $replyToName): bool
+function optional_photo_attachment(): ?array
+{
+    if (!isset($_FILES['photo']) || !is_array($_FILES['photo'])) {
+        return null;
+    }
+
+    $file = $_FILES['photo'];
+    $error = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
+    if ($error === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+
+    if ($error !== UPLOAD_ERR_OK) {
+        fail('La photo n\'a pas pu être transmise. Merci de réessayer sans photo ou avec un autre fichier.');
+    }
+
+    $tmpName = (string) ($file['tmp_name'] ?? '');
+    if ($tmpName === '' || !is_uploaded_file($tmpName)) {
+        fail('La photo transmise est invalide.');
+    }
+
+    $size = (int) ($file['size'] ?? 0);
+    if ($size <= 0 || $size > 5 * 1024 * 1024) {
+        fail('La photo doit faire 5 Mo maximum.');
+    }
+
+    $mime = '';
+    if (function_exists('finfo_open')) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo !== false) {
+            $mime = (string) finfo_file($finfo, $tmpName);
+            finfo_close($finfo);
+        }
+    }
+
+    $allowed = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+    ];
+
+    if (!isset($allowed[$mime])) {
+        fail('La photo doit être au format JPG, PNG ou WebP.');
+    }
+
+    $originalName = clean_single_line((string) ($file['name'] ?? 'photo-chantier'));
+    $safeName = preg_replace('/[^a-zA-Z0-9._-]+/', '-', $originalName) ?: 'photo-chantier';
+    $safeName = trim($safeName, '.-');
+    if ($safeName === '') {
+        $safeName = 'photo-chantier';
+    }
+
+    return [
+        'path' => $tmpName,
+        'name' => $safeName,
+        'mime' => $mime,
+        'size' => $size,
+    ];
+}
+
+function send_smtp_mail(array $mailConfig, string $subject, array $bodyLines, string $replyToEmail, string $replyToName, ?array $attachment = null): bool
 {
     $missing = [];
     foreach (['host', 'username', 'password', 'from_email', 'to_email'] as $key) {
@@ -158,6 +218,10 @@ function send_smtp_mail(array $mailConfig, string $subject, array $bodyLines, st
     $mail->Subject = $subject;
     $mail->Body = implode("\n", $bodyLines);
     $mail->AltBody = $mail->Body;
+
+    if ($attachment !== null) {
+        $mail->addAttachment($attachment['path'], $attachment['name'], 'base64', $attachment['mime']);
+    }
 
     return $mail->send();
 }
@@ -200,8 +264,12 @@ try {
     $email = clean_single_line(field('email', 180));
     $phone = clean_single_line(field('telephone', 40));
     $requestType = clean_single_line(field('type', 180));
+    $address = clean_single_line(field('adresse', 240));
+    $urgency = clean_single_line(field('urgence', 80));
+    $availability = clean_single_line(field('disponibilite', 180));
     $jobPosition = clean_single_line(field('poste', 180));
     $message = trim(field('message', 3000));
+    $photoAttachment = $formType === 'contact' ? optional_photo_attachment() : null;
 
     if ($lastName === '' || $firstName === '' || $email === '' || $message === '') {
         fail('Merci de remplir les champs obligatoires.');
@@ -223,19 +291,6 @@ try {
         fail('Merci de préciser votre message.');
     }
 
-    $serverDsn = sprintf(
-        'mysql:host=%s;port=%s;dbname=%s;charset=%s',
-        $config['host'],
-        $config['port'],
-        $config['database'],
-        $config['charset']
-    );
-
-    $pdo = new PDO($serverDsn, $config['username'], $config['password'], [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    ]);
-
     $subjectBase = $formType === 'candidature'
         ? 'Nouvelle candidature - WAS TELECOM'
         : 'Nouvelle demande de contact - WAS TELECOM';
@@ -249,14 +304,29 @@ try {
         'Email : ' . $email,
         'Téléphone : ' . ($phone !== '' ? $phone : 'Non renseigné'),
         'Type de demande : ' . ($requestType !== '' ? $requestType : 'Non renseigné'),
+        'Adresse / ville : ' . ($address !== '' ? $address : 'Non renseigné'),
+        'Urgence : ' . ($urgency !== '' ? $urgency : 'Non renseigné'),
+        'Disponibilité : ' . ($availability !== '' ? $availability : 'Non renseigné'),
         'Poste recherché : ' . ($jobPosition !== '' ? $jobPosition : 'Non renseigné'),
+        'Photo jointe : ' . ($photoAttachment !== null ? $photoAttachment['name'] : 'Non'),
         '',
         'Message :',
         $message,
     ];
 
+    $storedMessage = implode("\n", array_filter([
+        'Message :',
+        $message,
+        '',
+        'Détails intervention :',
+        'Adresse / ville : ' . ($address !== '' ? $address : 'Non renseigné'),
+        'Urgence : ' . ($urgency !== '' ? $urgency : 'Non renseigné'),
+        'Disponibilité : ' . ($availability !== '' ? $availability : 'Non renseigné'),
+        'Photo jointe : ' . ($photoAttachment !== null ? $photoAttachment['name'] : 'Non'),
+    ], static fn ($line) => $line !== null));
+
     try {
-        $emailSent = send_smtp_mail($mailConfig, $subject, $bodyLines, $email, trim($firstName . ' ' . $lastName));
+        $emailSent = send_smtp_mail($mailConfig, $subject, $bodyLines, $email, trim($firstName . ' ' . $lastName), $photoAttachment);
         $mailError = null;
         log_form_event('SMTP OK to=' . ($mailConfig['to_email'] ?? 'missing') . ' form=' . $formType);
     } catch (MailException | RuntimeException $mailException) {
@@ -266,24 +336,52 @@ try {
         log_form_event('SMTP FAIL to=' . ($mailConfig['to_email'] ?? 'missing') . ' form=' . $formType . ' error=' . $mailError);
     }
 
-    $insert = $pdo->prepare(
-        'INSERT INTO form_submissions
-        (form_type, first_name, last_name, email, phone, request_type, job_position, message, email_sent)
-        VALUES
-        (:form_type, :first_name, :last_name, :email, :phone, :request_type, :job_position, :message, :email_sent)'
-    );
+    $databaseSaved = false;
+    $databaseError = null;
 
-    $insert->execute([
-        ':form_type' => $formType,
-        ':first_name' => $firstName,
-        ':last_name' => $lastName,
-        ':email' => $email,
-        ':phone' => $phone !== '' ? $phone : null,
-        ':request_type' => $requestType !== '' ? $requestType : null,
-        ':job_position' => $jobPosition !== '' ? $jobPosition : null,
-        ':message' => $message,
-        ':email_sent' => $emailSent ? 1 : 0,
-    ]);
+    try {
+        $serverDsn = sprintf(
+            'mysql:host=%s;port=%s;dbname=%s;charset=%s',
+            $config['host'],
+            $config['port'],
+            $config['database'],
+            $config['charset']
+        );
+
+        $pdo = new PDO($serverDsn, $config['username'], $config['password'], [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ]);
+
+        $insert = $pdo->prepare(
+            'INSERT INTO form_submissions
+            (form_type, first_name, last_name, email, phone, request_type, job_position, message, email_sent)
+            VALUES
+            (:form_type, :first_name, :last_name, :email, :phone, :request_type, :job_position, :message, :email_sent)'
+        );
+
+        $insert->execute([
+            ':form_type' => $formType,
+            ':first_name' => $firstName,
+            ':last_name' => $lastName,
+            ':email' => $email,
+            ':phone' => $phone !== '' ? $phone : null,
+            ':request_type' => $requestType !== '' ? $requestType : null,
+            ':job_position' => $jobPosition !== '' ? $jobPosition : null,
+            ':message' => $storedMessage,
+            ':email_sent' => $emailSent ? 1 : 0,
+        ]);
+
+        $databaseSaved = true;
+    } catch (Throwable $databaseException) {
+        $databaseError = $databaseException->getMessage();
+        error_log('WAS TELECOM database save error: ' . $databaseError);
+        log_form_event('DB FAIL form=' . $formType . ' error=' . $databaseError);
+    }
+
+    if (!$emailSent && !$databaseSaved) {
+        throw new RuntimeException('Both email delivery and database save failed.');
+    }
 
     $payload = [
         'success' => true,
@@ -291,11 +389,16 @@ try {
             ? 'Votre message a bien été envoyé.'
             : 'Votre message est enregistré. WAS TELECOM vous recontactera rapidement.',
         'email_sent' => $emailSent,
+        'database_saved' => $databaseSaved,
     ];
 
     if (!$emailSent && is_local_env()) {
         $payload['mail_error'] = $mailError;
         $payload['mail_to'] = $mailConfig['to_email'] ?? null;
+    }
+
+    if (!$databaseSaved && is_local_env()) {
+        $payload['database_error'] = $databaseError;
     }
 
     json_response($payload);

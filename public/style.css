@@ -2,7 +2,7 @@
    - Couleurs : modifier les variables ci-dessous.
    - Images : remplacer les fichiers dans /images en gardant les mêmes noms ou mettre à jour les src HTML.
    - Textes et coordonnées : modifier directement les blocs HTML des pages concernees.
-   - Formulaires : aucune donnée n'est envoyée, la confirmation est gérée dans script.js.
+   - Formulaires : les demandes sont envoyées via submit-form.php et confirmées dans script.js.
 */
 :root {
   --blue-dark: #072f4d;
@@ -314,6 +314,15 @@ input, select, textarea {
   background: var(--white);
   color: var(--ink);
 }
+input[type="file"] {
+  padding: 11px;
+  border-style: dashed;
+  background: var(--blue-soft);
+}
+input:focus, select:focus, textarea:focus {
+  outline: 3px solid rgba(117, 184, 239, .35);
+  border-color: var(--blue-dark);
+}
 textarea { min-height: 140px; resize: vertical; }
 .field-help {
   display: block;
@@ -354,6 +363,16 @@ textarea { min-height: 140px; resize: vertical; }
 .form-message.is-error strong { color: #8f1f15; }
 .fake-upload { border: 1px dashed #8bbfe7; background: var(--blue-soft); padding: 18px; border-radius: 0; color: var(--muted); }
 .map { width: 100%; min-height: 360px; border: 0; border-radius: 0; }
+.legal-content {
+  max-width: 880px;
+}
+.legal-content h2 {
+  font-size: 1.45rem;
+  margin-top: 34px;
+}
+.legal-content h2:first-child {
+  margin-top: 0;
+}
 
 .site-footer { background: #061f35; color: rgba(255,255,255,.78); padding: 58px 0 24px; }
 .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 30px; }
@@ -371,6 +390,18 @@ textarea { min-height: 140px; resize: vertical; }
   transform: scale(1.18);
 }
 .copyright { border-top: 1px solid rgba(255,255,255,.12); margin-top: 34px; padding-top: 20px; font-size: .92rem; }
+.legal-footer-links {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-left: 12px;
+}
+.site-footer .legal-footer-links a {
+  display: inline;
+  margin: 0;
+  color: var(--blue-light);
+  font-weight: 800;
+}
 
 .back-to-top {
   position: fixed;
@@ -388,8 +419,45 @@ textarea { min-height: 140px; resize: vertical; }
   transition: opacity .2s ease, transform .2s ease;
 }
 .back-to-top.visible { opacity: 1; pointer-events: auto; }
-.reveal { opacity: 0; transform: translateY(18px); transition: opacity .55s ease, transform .55s ease; }
+.floating-whatsapp {
+  position: fixed;
+  right: 18px;
+  bottom: 76px;
+  z-index: 60;
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #1f9f62;
+  color: var(--white);
+  font-size: .78rem;
+  font-weight: 900;
+  letter-spacing: .02em;
+  border: 3px solid rgba(255,255,255,.9);
+  box-shadow: 0 14px 28px rgba(3, 29, 50, .22);
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.floating-whatsapp:hover {
+  background: #168451;
+  transform: translateY(-2px);
+  box-shadow: 0 18px 34px rgba(3, 29, 50, .28);
+}
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .55s ease var(--reveal-delay, 0ms), transform .55s ease var(--reveal-delay, 0ms); }
 .reveal.is-visible { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    transition-duration: .001ms !important;
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
 
 @media (max-width: 960px) {
   .nav-links {
@@ -432,4 +500,14 @@ textarea { min-height: 140px; resize: vertical; }
   .page-hero { padding: 70px 0 54px; }
   .reference-panel { padding: 24px; }
   .partner-logos { grid-template-columns: 1fr; }
+  .floating-whatsapp {
+    right: 14px;
+    bottom: 70px;
+    width: 50px;
+    height: 50px;
+  }
+  .legal-footer-links {
+    display: flex;
+    margin: 10px 0 0;
+  }
 }

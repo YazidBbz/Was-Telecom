@@ -3,6 +3,18 @@ const header = document.querySelector(".site-header");
 const menuToggle = document.querySelector(".menu-toggle");
 const navLinks = document.querySelector(".nav-links");
 const backToTop = document.querySelector(".back-to-top");
+const whatsappPhone = "33662943949";
+
+if (!document.querySelector(".floating-whatsapp")) {
+  const floatingWhatsApp = document.createElement("a");
+  floatingWhatsApp.className = "floating-whatsapp";
+  floatingWhatsApp.href = `https://wa.me/${whatsappPhone}`;
+  floatingWhatsApp.target = "_blank";
+  floatingWhatsApp.rel = "noopener";
+  floatingWhatsApp.setAttribute("aria-label", "Contacter WAS TELECOM sur WhatsApp");
+  floatingWhatsApp.innerHTML = '<span aria-hidden="true">WA</span>';
+  document.body.append(floatingWhatsApp);
+}
 
 function updateHeader() {
   const scrolled = window.scrollY > 12;
@@ -39,6 +51,12 @@ const revealObserver = new IntersectionObserver((entries) => {
     }
   });
 }, { threshold: 0.12 });
+
+document.querySelectorAll(".grid, .footer-grid").forEach((group) => {
+  group.querySelectorAll(".reveal, .card").forEach((item, index) => {
+    item.style.setProperty("--reveal-delay", `${Math.min(index, 5) * 55}ms`);
+  });
+});
 
 document.querySelectorAll(".reveal").forEach((item) => revealObserver.observe(item));
 
@@ -118,6 +136,29 @@ document.querySelectorAll("form[data-form]").forEach((form) => {
       return;
     }
 
+    const photoField = form.querySelector('input[type="file"][name="photo"]');
+    const photo = photoField?.files?.[0];
+    if (photo) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(photo.type)) {
+        photoField.focus();
+        if (message) {
+          message.className = "form-message is-error";
+          message.innerHTML = "<strong>Photo invalide</strong><span>Merci d'ajouter une photo JPG, PNG ou WebP.</span>";
+        }
+        return;
+      }
+
+      if (photo.size > 5 * 1024 * 1024) {
+        photoField.focus();
+        if (message) {
+          message.className = "form-message is-error";
+          message.innerHTML = "<strong>Photo trop lourde</strong><span>La photo doit faire 5 Mo maximum.</span>";
+        }
+        return;
+      }
+    }
+
     const submitButton = form.querySelector('button[type="submit"]');
     const formData = new FormData(form);
     formData.set("form_type", form.dataset.form || "contact");
@@ -135,7 +176,7 @@ document.querySelectorAll("form[data-form]").forEach((form) => {
       });
       const result = await response.json();
 
-      if (!response.ok || !result.success || !result.email_sent) {
+      if (!response.ok || !result.success) {
         throw new Error(result.message || "Impossible d'envoyer le formulaire.");
       }
 
@@ -144,7 +185,9 @@ document.querySelectorAll("form[data-form]").forEach((form) => {
       if (started) started.value = String(Math.floor(Date.now() / 1000));
       if (message) {
         message.className = "form-message is-success";
-        message.innerHTML = "<strong>Email envoyé</strong><span>Merci, votre message a bien été transmis à WAS TELECOM. Nous vous recontacterons rapidement.</span>";
+        const title = result.email_sent ? "Email envoyé" : "Demande enregistrée";
+        const text = result.message || "Merci, votre demande a bien été transmise à WAS TELECOM. Nous vous recontacterons rapidement.";
+        message.innerHTML = `<strong>${title}</strong><span>${text}</span>`;
       }
     } catch (error) {
       if (message) {

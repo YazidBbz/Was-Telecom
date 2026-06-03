@@ -14,7 +14,7 @@ $blockedFiles = [
 ];
 
 foreach ($blockedPrefixes as $prefix) {
-    if (str_starts_with($path, $prefix)) {
+    if (strncmp($path, $prefix, strlen($prefix)) === 0) {
         http_response_code(403);
         exit('Forbidden');
     }

@@ -10,7 +10,7 @@ function load_env_file(string $path): void
     $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
         $line = trim($line);
-        if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) {
+        if ($line === '' || strpos($line, '#') === 0 || strpos($line, '=') === false) {
             continue;
         }
 
@@ -19,8 +19,8 @@ function load_env_file(string $path): void
         $value = trim($value);
 
         if (
-            (str_starts_with($value, '"') && str_ends_with($value, '"'))
-            || (str_starts_with($value, "'") && str_ends_with($value, "'"))
+            (substr($value, 0, 1) === '"' && substr($value, -1) === '"')
+            || (substr($value, 0, 1) === "'" && substr($value, -1) === "'")
         ) {
             $value = substr($value, 1, -1);
         }
